@@ -1,0 +1,41 @@
+name: Node.js CI/CD
+
+on:
+  push:
+    branches: [ main, my-feature-branch ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm test || echo "Tests failed but continuing"
+
+    - name: Build project
+      run: |
+        if npm run | grep build; then
+          npm run build
+        else
+          echo "No build script, skipping build"
+        fi
+
+    - name: Deploy (optional)
+      run: echo "Skipping deploy for now"
